@@ -1,0 +1,15 @@
+The error occurred in line 4067 of file .\RoutesEditor_DLG.cpp in function long __cdecl RoutesEditor_dlg_eh(void *,struct XVT2DOTNET::s_event *).
+Information:
+Exception access violation
+Code : 0xc0000005
+Flags : 0
+Address : 0x745249d1
+Stack:
+not availableThe error occurred in line 4067 of file .\RoutesEditor_DLG.cpp in function long __cdecl RoutesEditor_dlg_eh(void *,struct XVT2DOTNET::s_event *).
+Information:
+Exception access violation
+Code : 0xc0000005
+Flags : 0
+Address : 0x745249d1
+Stack:
+not available
