@@ -3,13 +3,13 @@
 # ref : VISSIM 5.30-04 - COM Interface Manual, PTV group, Karlsrueh, Germany, 2011.
 
 import ctypes.wintypes
-import email_interface
+#import email_interface
 import inspect
 import os
 import pywintypes
 import win32api
 import win32com.client as com
-import win_interface
+#import win_interface
 
 def getProgramName():
     # ref : In Python, how do I get the path and name of the file that is currently executing?, 2008, [Online] Available at : http://stackoverflow.com/questions/50499/in-python-how-do-i-get-the-path-and-name-of-the-file-that-is-currently-executin
@@ -93,34 +93,66 @@ def runSimulation(simulationTime_sec, startTime_sec, endTime_sec, idxScenario, i
 
     # Link Groups
     link_groups = [
-                {'MAINLINE': (84,), 'ONRAMP': (), 'OFFRAMP': (), 'DC': 1, 'VSL': (1, 2, 3, 4)},
-                {'MAINLINE': (83,), 'ONRAMP': (), 'OFFRAMP': (), 'DC': 2, 'VSL': (5, 6, 7, 8)},
-                {'MAINLINE': (81,), 'ONRAMP': (82,), 'OFFRAMP': (80,), 'DC': 3, 'VSL': (9, 10, 11, 12, 13, 69) },
-                {'MAINLINE': ()}
+                {'MAINLINE': (84,),         'ONRAMP': (),       'OFFRAMP': (),      'DC': 1, 'VSL': (1, 2, 3, 4)},
+                {'MAINLINE': (83,),         'ONRAMP': (),       'OFFRAMP': (),      'DC': 2, 'VSL': (5, 6, 7, 8)},
+                {'MAINLINE': (81,),         'ONRAMP': (82,),    'OFFRAMP': (80,),   'DC': 3, 'VSL': (9, 10, 11, 12, 13, 69) },
+                {'MAINLINE': (79,),         'ONRAMP': (),       'OFFRAMP': (),      'DC': 6, 'VSL': (14, 15, 16, 17)},
+                {'MAINLINE': (77, 76),      'ONRAMP': (78,),    'OFFRAMP': (),      'DC': 7, 'VSL': (18, 19, 20, 21, 70)},
+                {'MAINLINE': (75, 74),      'ONRAMP': (),       'OFFRAMP': (73,),   'DC': 9, 'VSL': (22, 23, 24, 25)},
+                {'MAINLINE': (72, 70),      'ONRAMP': (71,),    'OFFRAMP': (),      'DC': 11, 'VSL': (26, 27, 28, 29, 72)},
+                {'MAINLINE': (69,),         'ONRAMP': (),       'OFFRAMP': (),      'DC': 13, 'VSL': (30, 31, 32, 33)},
+                {'MAINLINE': (68, 66,),     'ONRAMP': (),       'OFFRAMP': (67,),   'DC': 14, 'VSL': (34, 35, 36, 37)},
+                {'MAINLINE': (65,),         'ONRAMP': (),       'OFFRAMP': (),      'DC': 16, 'VSL': (38, 39, 40)},
+                {'MAINLINE': (63, 62, 60,), 'ONRAMP': (64,),    'OFFRAMP': (61,),   'DC': 17, 'VSL': (41, 42, 43, 44, 75)},
+                {'MAINLINE': (59,),         'ONRAMP': (),       'OFFRAMP': (),      'DC': 20, 'VSL': (45, 46, 47)},
+                {'MAINLINE': (58,),         'ONRAMP': (),       'OFFRAMP': (),      'DC': 21, 'VSL': (48, 49, 50)},
+                {'MAINLINE': (57, 55, 51),  'ONRAMP': (54,),    'OFFRAMP': (56, 53), 'DC': 22, 'VSL': (51, 52, 53, 54, 77)},
+                {'MAINLINE': (50, 19, 18),  'ONRAMP': (49,),    'OFFRAMP': (),      'DC': 26, 'VSL': (55, 56, 57, 79)},
+                {'MAINLINE': (17, 339),     'ONRAMP': (),       'OFFRAMP': (326,),  'DC': 28, 'VSL': (58, 59, 60)},
+                {'MAINLINE': (338,),        'ONRRAMP': (),      'OFFRAMP': (),      'DC': 30, 'VSL': (61, 62, 63)},
+                {'MAINLINE': (337, 310, 311, 309, 307, 306, 304), 
+                                            'ONRAMP': (336, 308),'OFFRAMP': (312, 305), 'DC': 31, 'VSL': (65, 66, 67, 81)}
     ]
 
+    #  Ramps
+    ramps = {
+                82: {'LINK_GROUP': 2, 'TYPE': 'ON', 'DC': 4, 'SC': 1, 'QC': 1, 'QLENGTH': 100, 'RHOR': 90},
+                80: {'LINK_GROUP': 2, 'TYPE': 'OFF', 'DC': 5},
+                78: {'LINK_GROUP': 4, 'TYPE': 'ON', 'DC': 8, 'SC': 2, 'QC': 2, 'QLENGTH': 100, 'RHOR': 90},
+                73: {'LINK_GROUP': 5, 'TYPE': 'OFF', 'DC': 10},
+                71: {'LINK_GROUP': 6, 'TYPE': 'ON', 'DC': 12, 'SC': 3, 'QC': 3, 'QLENGTH': 100, 'RHOR': 90},
+                67: {'LINK_GROUP': 8, 'TYPE': 'OFF', 'DC': 15},
+                64: {'LINK_GROUP': 10, 'TYPE': 'ON', 'DC': 18, 'SC': 4, 'QC': 4, 'QLENGTH': 100, 'RHOR': 90},
+                61: {'LINK_GROUP': 10, 'TYPE': 'ON', 'DC': 19, 'SC': 5, 'QC': 5, 'QLENGTH': 100, 'RHOR': 90},
+                56: {'LINK_GROUP': 13, 'TYPE': 'OFF', 'DC': 24},
+                54: {'LINK_GROUP': 13, 'TYPE': 'ON', 'DC': 23, 'SC': 6, 'QC': 6, 'QLENGTH': 100, 'RHOR': 90},
+                53: {'LINK_GROUP': 13, 'TYPE': 'OFF', 'DC': 25},
+                49: {'LINK_GROUP': 14, 'TYPE': 'ON', 'DC': 27, 'SC': 7, 'QC': 7, 'QLENGTH': 100, 'RHOR': 90},
+                326:{'LINK_GROUP': 15, 'TYPE': 'OFF', 'DC': 29},
+                336:{'LINK_GROUP': 17, 'TYPE': 'ON', 'DC': 32, 'SC': 8, 'QC': 8, 'QLENGTH': 100, 'RHOR': 90},
+                312:{'LINK_GROUP': 17, 'TYPE': 'OFF', 'DC': 34},
+                #308:{'LINK_GROUP': 17, 'TYPE': 'ON', 'DC': 33},
+                305:{'LINK_GROUP': 17, 'TYPE': 'OFF', 'DC': 35},
+    }
 
 
 
-     [(84,),
-                   (83,),
-                   (81,),
-                   (79,),
-                   (77, 76),
-                   (75, 74),
-                   (72, 70),
-                   (69,),
-                   (68, 66,),
-                   (65,),
-                   (63, 62, 60,),
-                   (59,),
-                   (58,),
-                   (57, 55, 51),
-                   (50, 19, 18),
-                   (17, 339),
-                   (338,),
-                   (337, 310, 311, 309, 307, 306, 304)
-    ]
+
+
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                                      
+                   
+
 
     #Data Collector Groups
     DC_groups = [()
