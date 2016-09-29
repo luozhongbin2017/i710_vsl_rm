@@ -92,7 +92,17 @@ def runSimulation(simulationTime_sec, startTime_sec, endTime_sec, idxScenario, i
     '''
 
     # Link Groups
-    link_groups = [(84,),
+    link_groups = [
+                {'MAINLINE': (84,), 'ONRAMP': (), 'OFFRAMP': (), 'DC': 1, 'VSL': (1, 2, 3, 4)},
+                {'MAINLINE': (83,), 'ONRAMP': (), 'OFFRAMP': (), 'DC': 2, 'VSL': (5, 6, 7, 8)},
+                {'MAINLINE': (81,), 'ONRAMP': (82,), 'OFFRAMP': (80,), 'DC': 3, 'VSL': (9, 10, 11, 12, 13, 69) },
+                {'MAINLINE': ()}
+    ]
+
+
+
+
+     [(84,),
                    (83,),
                    (81,),
                    (79,),
