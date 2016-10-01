@@ -65,7 +65,7 @@ def writeHeader(fileName, title, Nsec, firstColumnHeader = "t/s", columnHeader =
     speedFile.write('\n')
     speedFile.close()
 
-def runSimulation(simulationTime_sec, startTime_sec, endTime_sec, idxScenario, idxControler, idxLaneClosure, randonSeed, folderDir, networkDir):
+def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure, randonSeed, folderDir, networkDir):
     '''run PTV VISSIM simulation using given arguments
     Parameters
     ----------
@@ -136,35 +136,185 @@ def runSimulation(simulationTime_sec, startTime_sec, endTime_sec, idxScenario, i
     }
 
 
+    '''setting of scenarios'''
+    scenarios = [{'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, startTime_sec: 1500, endTime_sec: 2100},
+                 {'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, startTime_sec: 1500, endTime_sec: 3300},
+                 {'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, startTime_sec: 1500, endTime_sec: 4800}]
+
+
+    ''' Demand settings'''
+    #demands = [4500, 280, 180, 400, 650, 10, 50, 180, 100, 50, 90, 280, 550] # daily average vehicle demands
+    demands = [4500, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    for i in xrange(len(demands)):
+        demands[i] *= demandRatio
+
+
+    Nsec = len(link_groups)   # number of sections
+    Ninput = len(demands)   # number of vehicle input points
+    simResolution = 5   # No. of simulation steps per second
+    stepTime_sec = 1.0 / simResolution  # length of single simulation step in seconds
+    Tdata_sec = 5.0     # Data sampling period
+    Tctrl_sec = 30.0 # Control time interval
+
+
+    car_class = 10
+    truck_class = 20
+    # vf = {car_class: 65, truck_class: 65} #default speed limit of cars and trucks
+    vf = 65 # The free flow speed of highway in mi/h
+
+    fts2mph = 0.681818 # 1 ft/s = 0.681818 mph
+
+    # speed[]: average speed of each section
+    # density[]: vehicle density of each section
+    # flowSection[]: flow rate of each section
+    # flowLane[]: flow rate of each lane at bottleneck section
+    # vsl[]: vsl command of each section at current control period, a list of dicts
+    # vslOld[]: vsl command of each section at previous control period
+    speed = [0.0] * Nsec
+    density = [0.0] * Nsec
+    #densityOld = [0.0] * Nsec
+    flowSection = [0.0] * Nsec
+    vsl = [vf] * Nsec
+    vslOld = [vf] * Nsec
+
+
+    '''Define log file names'''
+    speedFileName = os.path.join(folderDir, "speedLog_%d.txt"%randomSeed)
+    densityFileName = os.path.join(folderDir, "densityLog_%d.txt"%randomSeed)
+    flowSectionFileName = os.path.join(folderDir, "flowSectionLog_%d.txt"%randomSeed)
+    vslFileName = os.path.join(folderDir, "vslLog_%d.txt"%randomSeed)
+
+
+    '''write file headers'''
+    writeHeader(speedFileName, "Average Speed of Each Section", Nsec)
+    writeHeader(densityFileName, "Density of Each Section", Nsec)
+    writeHeader(flowSectionFileName, "Flow Rate of Each Section", Nsec)
+    writeHeader(vslFileName, "VSL Command of Each Section", Nsec)
+
+    
+    ProgID = "VISSIM.Vissim"
+    
+    '''file paths'''
+    networkFileName = "I710.inp"
+    layoutFileName = "I710.ini"
+    #path = networkDir
+    #arrivedVehFileName = os.path.join(path, "ArrivedVehs.txt")
+    
+    ''' Start VISSIM simulation '''
+    ''' COM lines'''  
+
+    try:
+        print "Client: Creating a Vissim instance"
+        vs = com.Dispatch(ProgID)
+        
+        print "Client: Creating a Vissim Simulation instance"
+        sim = vs.Simulation
+    
+        print "Client: read network and layout"
+        vs.LoadNet(os.path.join(networkDir, networkFileName), 0)
+        vs.LoadLayout(os.path.join(networkDir, layoutFileName))
+    
+        ''' initialize simulations '''
+        ''' setting random seed, simulation time, simulation resolution, simulation speed '''
+        print "Client: Setting simulations"
+        sim.Resolution = simResolution
+        sim.Speed = 0
+        sim.RandomSeed = randomSeed
+
+        # Reference to road network
+        net = vs.Net
+
+        ''' Set vehicle input '''
+        vehInputs = net.VehicleInputs
+
+        for num in xrange(Ninput):
+            vehInput = vehInputs.GetVehicleInputByNumber(num+1)
+            vehInput.SetAttValue('VOLUME', demands[num])
+            vehInput.SetAttValue('TRAFFICCOMPOSITION', demandComposition)                
+
+        ''' Set default speed limit '''
+        VSLs = net.DesiredSpeedDecisions
+        numberSpeedLimit = VSLs.count
+        for VSL in VSLs :
+            VSL.SetAttValue1("DESIREDSPEED", car_class, vf)
+            VSL.SetAttValue1("DESIREDSPEED", truck_class, vf)
+
+        ''' Get Data collection and link objects '''
+        dataCollections = net.DataCollections
+
+        # Make sure that all lanes are open        
+        links = net.Links
+        link_Nlane = {}
+        link_length = {}
+        for link in links:
+            ID = link.ID
+            link_Nlane[ID] = link.AttValue('NUMLANES')
+            link_length[ID] = link.AttValue('LENGTH')
+            # Open all lanes
+            for lane in range(link_Nlane[ID]):
+                link.SetAttValue2('LANECLOSED', lane+1, car_class, False)
+                link.SetAttValue2('LANECLOSED', lane+1, truck_class, False)
+
+        busNo = 2 # No. of buses used to block the lane
+        busArray = [0] * busNo
+
+        vehs = net.Vehicles
+
+
+        # start simulation
+        print "Client: Starting simulation"
+        print "Vehicle Input Ratio:", demandRatio
+        print "Scenario:", idxScenario
+        print "Controller:", idxController
+        print "Lane Closure:", idxLaneClosure, "section"
+        print "Random Seed:", randomSeed
+
+        
 
 
 
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                                      
-                   
 
 
-    #Data Collector Groups
-    DC_groups = [()
+    except pywintypes.com_error, err:
+        print "err=", err
+        var0 = err[0]
+        print "%d == 0x%x" % (var0, ctypes.wintypes.UINT(var0).value), win32api.FormatMessage(var0)
+        # https://mail.python.org/pipermail/python-win32/2008-August/008041.html
+        print 
+        # DISP_E_EXCEPTION == 0x80020009
+        
+        var1 = err[2][-2]
+        print "%d == 0x%x" % (var1, ctypes.wintypes.UINT(var1).value)
+        # DISP_E_EXCEPTION == 0x80020009
 
-    ]
-
-
-
-
-    Nsec = 18   # number of sections
-    simResolution = 5
-
+        var2 = err[2][-1]
+        print "%d == 0x%x" % (var2, ctypes.wintypes.UINT(var2).value), win32api.FormatMessage(var2)
+        # real error code
+        # E_FAIL == 0x80004005
+        # ref https://mail.python.org/pipermail/python-win32/2008-August/008040.html
+        #     http://www.vistax64.com/vista-installation-setup/33219-regsvr32-error-0x80004005.html
+        #     http://sharepoint.stackexchange.com/questions/42838/exception-from-hresult-0x80020009-disp-e-exception
+        
+        # ref VISSIM_COM p.236 Error Handling
+        #     VISSIM_COM p.258 Error Messages list of error messages by VISSIM server
+        #     VISSIM_COM p.262 "The specified configuration is not defined within VISSIM."
+        '''
+        Error
+        The specified configuration is not defined within VISSIM.
+        
+        Description
+        Some methods for evaulations results need a previously configuration for data collection. 
+        The error occurs when requesting results that have not been previously configured.
+        For example, using the GetSegmentResult() method of the ILink interface to request
+        density results can end up with this error if the density has not been requested within the configuration
+        ''' 
+        
+        #email_interface.mail(DEST, getProgramName(), "exception : %s" % (err)) 
+    
+    except Exception, err:
+        print "err=", err
+        #email_interface.mail(DEST, getProgramName(), "exception : %s" % (err)) 
+# end runSimulation()
 
 
 
