@@ -72,16 +72,16 @@ class RampMeter(object):
         '''
         self.redTime = 3600 / rate - greenTime
 
-    def meter_step(self):
+    def meter_step(self, sim_step):
         '''
         update the meter states for one simulation step
         '''
         if self.get_state() == 1:
-            self.red_increment()
+            self.red_increment(sim_step)
             if self.get_detector() == 1 and self.RedTimer >= redTime:
                 self.change2green()
         else:
-            self.green_increment()
+            self.green_increment(sim_step)
             if GreenTimer >= greenTime:
-                self.change2red
+                self.change2red()
 
