@@ -333,12 +333,15 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
         busArray = [0] * busNo
 
         vehs = net.Vehicles
+        signalControllers = net.SignalControllers #VISSIM SignalControllers object
+        queueCounters = net.QueueCounters #VISSIM queue counter object
 
         # Construct the dictionary of ramp meters
         ramps_obj = {}
         for key in ramps:
             ramp = ramps[key]
-            ramps_obj[key] = RM.RampMeter(ramp['LINKGROUP'], ramp['DC'], ramp['SC'], ramp['QC'], ramp['QLENGTH'], ramp['RHOR'])
+            if ramp['TYPE'] == 'ON':
+                ramps_obj[key] = RM.RampMeter(ramp['LINKGROUP'], dataCollections.GetDataCollectionByNumber(ramp['DC']), signalControllers.GetSignalControllerByNumber(ramp['SC']), queueCounters.GetQueueCounterByNumber(ramp['QC']), ramp['QLENGTH'], ramp['RHOR'])
 
 
 
