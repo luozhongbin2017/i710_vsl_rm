@@ -207,8 +207,8 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
 
     ''' Demand settings'''
-    #demands = [4500, 280, 180, 400, 650, 10, 50, 180, 100, 50, 90, 280, 550] # daily average vehicle demands
-    demands = [4500, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    demands = [4500, 280, 180, 400, 650, 10, 50, 180, 100, 50, 90, 280, 550] # daily average vehicle demands
+    #demands = [4500, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for i in xrange(len(demands)):
         demands[i] *= demandRatio
 
@@ -359,7 +359,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
             sim.RunSingleStep()
             currentTime = sim.AttValue('ELAPSEDTIME')
             for key in ramps_obj:
-                ramps_obj[key].meter_step()
+                ramps_obj[key].meter_step(stepTime_sec)
             #currentTime += stepTime_sec
             print currentTime
             if 0 == currentTime % Tdata_sec:
