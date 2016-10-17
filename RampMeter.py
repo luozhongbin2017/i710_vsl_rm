@@ -52,8 +52,8 @@ class RampMeter(object):
         '''
         change the light to green
         '''
-        SG.SetAttValue('STATE', 3)
-        RedTimer = 0
+        self.SG.SetAttValue('STATE', 3)
+        self.RedTimer = 0
 
     def green_increment(self, sim_step):
         '''
@@ -63,14 +63,14 @@ class RampMeter(object):
         self.GreenTimer += sim_step
 
     def change2red(self):
-        SG.SetAttValue('STATE', 1)
-        GreenTimer = 0
+        self.SG.SetAttValue('STATE', 1)
+        self.GreenTimer = 0
 
     def update_rate(self, rate):
         '''
         update the signal period according to ramp metering rate
         '''
-        self.redTime = 3600 / rate - greenTime
+        self.redTime = 3600 / rate - self.greenTime
 
     def meter_step(self, sim_step):
         '''
@@ -78,10 +78,10 @@ class RampMeter(object):
         '''
         if self.get_state() == 1:
             self.red_increment(sim_step)
-            if self.get_detector() == 1 and self.RedTimer >= redTime:
+            if self.get_detector() == 1 and self.RedTimer >= self.redTime:
                 self.change2green()
         else:
             self.green_increment(sim_step)
-            if GreenTimer >= greenTime:
+            if self.GreenTimer >= self.greenTime:
                 self.change2red()
 
