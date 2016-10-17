@@ -424,6 +424,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
                 # Get flow on each ramp
                 rampFlowFile = open(rampFlowFileName, 'a')
+                rampFlowFile.write(str(currentTime) + '\t')
                 i = 0
                 for key in ramps:
                     dataCollection = dataCollections.GetDataCollectionByNumber(ramps[key]['DC'])
