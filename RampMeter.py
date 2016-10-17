@@ -23,7 +23,7 @@ class RampMeter(object):
         self.Det = self.SC.Detectors.GetDetectorByNumber(1)
         self.QLENGTH = QLENGTH
         self.RHOR = RHOR
-        self.redTime = 0.0
+        self.redTime = 3.0
         self.RedTimer = 0.0
         self.greenTime = 2.0
         self.GreenTimer = 0.0

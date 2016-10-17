@@ -341,7 +341,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
         for key in ramps:
             ramp = ramps[key]
             if ramp['TYPE'] == 'ON':
-                ramps_obj[key] = RM.RampMeter(ramp['LINKGROUP'], dataCollections.GetDataCollectionByNumber(ramp['DC']), signalControllers.GetSignalControllerByNumber(ramp['SC']), queueCounters.GetQueueCounterByNumber(ramp['QC']), ramp['QLENGTH'], ramp['RHOR'])
+                ramps_obj[key] = RM.RampMeter(ramp['LINK_GROUP'], dataCollections.GetDataCollectionByNumber(ramp['DC']), signalControllers.GetSignalControllerByNumber(ramp['SC']), queueCounters.GetQueueCounterByNumber(ramp['QC']), ramp['QLENGTH'], ramp['RHOR'])
 
 
 
@@ -358,6 +358,8 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
             # run sigle step of simulation
             sim.RunSingleStep()
             currentTime = sim.AttValue('ELAPSEDTIME')
+            for key in ramps_obj:
+                ramps_obj[key].meter_step()
             #currentTime += stepTime_sec
             print currentTime
             if 0 == currentTime % Tdata_sec:
