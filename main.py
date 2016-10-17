@@ -10,6 +10,7 @@ import pywintypes
 import win32api
 import win32com.client as com
 import shutil
+import RampMeter as RM
 #import win_interface
 
 def getProgramName():
@@ -332,6 +333,13 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
         busArray = [0] * busNo
 
         vehs = net.Vehicles
+
+        # Construct the dictionary of ramp meters
+        ramps_obj = {}
+        for key in ramps:
+            ramp = ramps[key]
+            ramps_obj[key] = RM.RampMeter(ramp['LINKGROUP'], ramp['DC'], ramp['SC'], ramp['QC'], ramp['QLENGTH'], ramp['RHOR'])
+
 
 
         # start simulation
