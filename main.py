@@ -216,6 +216,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
     Nsec = len(link_groups)   # number of sections
     Ninput = len(demands)   # number of vehicle input points
+    Nramp = len(ramps)  # number of ramps
     simResolution = 5   # No. of simulation steps per second
     stepTime_sec = 1.0 / simResolution  # length of single simulation step in seconds
     Tdata_sec = 5.0     # Data sampling period
@@ -242,6 +243,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
     speed = [0.0] * Nsec
     density = [0.0] * Nsec
     flowSection = [0.0] * Nsec
+    rampFlow = [0.0] * Nramp
     vsl = [vf] * Nsec
     vslOld = [vf] * Nsec
 
@@ -251,6 +253,8 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
     densityFileName = os.path.join(folderDir, "densityLog_%d.txt"%randomSeed)
     flowSectionFileName = os.path.join(folderDir, "flowSectionLog_%d.txt"%randomSeed)
     vslFileName = os.path.join(folderDir, "vslLog_%d.txt"%randomSeed)
+    rampFlowFileName = os.path.join(folderDir, "rampFlowLog_%d.txt"%randomSeed)
+    rampQueFileName = os.path.join(folderDir, "rampQueLog_%d.txt"%randomSeed)
 
 
     '''write file headers'''
@@ -258,6 +262,9 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
     writeHeader(densityFileName, "Density of Each Section", Nsec)
     writeHeader(flowSectionFileName, "Flow Rate of Each Section", Nsec)
     writeHeader(vslFileName, "VSL Command of Each Section", Nsec)
+    writeHeader(rampFlowFileName, "Flow rate on each ramp", Nramp, columnHeader = "Ramp")
+    writeHeader(rampQueFileName, "Queue Length on each ramp", Nramp, columnHeader = "Ramp")
+
 
     
     ProgID = "VISSIM.Vissim"
@@ -388,6 +395,8 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
                         speed[iSection] = 0
                     else:
                         speed[iSection] = dist / Nveh
+
+
                         
                 ''' write log files : flowSection, speed, density '''
                 #   open files and indicate time
@@ -412,6 +421,21 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
                 speedFile.write('\n'); speedFile.close()
                 densityFile.write('\n'); densityFile.close()
                 # end write log files : flowSection, speed, density
+
+                # Get flow on each ramp
+                rampFlowFile = open(rampFlowFileName, 'a')
+                i = 0
+                for key in ramps:
+                    dataCollection = dataCollections.GetDataCollectionByNumber(ramps[key]['DC'])
+                    flow = dataCollection.GetResult('NVEHICLES', 'sum', 0) 
+                    rampFlowFile.write(str(flow) + '\t')
+                    rampFlow[i] += flow
+                    i += 1
+                rampFlowFile.write('\n'); rampFlowFile.close()
+
+
+
+
 
             if currentTime == startTime_sec:
                 # set incident scenario
