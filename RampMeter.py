@@ -3,6 +3,7 @@
 class RampMeter(object):
     """
     LINK_GROUP: (int) the link group index of the section that the ramp meter is conneted to
+    INPUT: (VISSIM Object) the VISSIM object of vehicle input
     DC: (VISSIM Object) the VISSIM object of data collection on the ramp
     SC: (VISSIM Object) the VISSIM object of the signal controller associated with the ramp meter
     QC: (VISSIM Object) the VISSIM object of the queue counter associated with the ramp meter
@@ -13,9 +14,10 @@ class RampMeter(object):
     RedTimer: (double) timer for the red light
     GreenTimer: (double) timer for the greent light
     """
-    def __init__(self, LINK_GROUP, DC, SC, QC, QLENGTH, RHOR):
+    def __init__(self, LINK_GROUP, INPUT, DC, SC, QC, QLENGTH, RHOR):
         #super(RampMeter, self).__init__()
         self.LINK_GROUP = LINK_GROUP
+        self.INPUT = INPUT
         self.DC = DC
         self.SC = SC
         self.QC = QC

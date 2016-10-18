@@ -212,20 +212,20 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
     #  Ramps
     ramps = {
-                82: {'LINK_GROUP': 2, 'TYPE': 'ON', 'DC': 4, 'SC': 1, 'QC': 1, 'QLENGTH': 100, 'RHOR': 90},
+                82: {'LINK_GROUP': 2, 'TYPE': 'ON', 'INPUT': 2, 'DC': 4, 'SC': 1, 'QC': 1, 'QLENGTH': 100, 'RHOR': 90},
                 80: {'LINK_GROUP': 2, 'TYPE': 'OFF', 'DC': 5},
-                78: {'LINK_GROUP': 4, 'TYPE': 'ON', 'DC': 8, 'SC': 2, 'QC': 2, 'QLENGTH': 100, 'RHOR': 90},
+                78: {'LINK_GROUP': 4, 'TYPE': 'ON', 'INPUT': 3, 'DC': 8, 'SC': 2, 'QC': 2, 'QLENGTH': 100, 'RHOR': 90},
                 73: {'LINK_GROUP': 5, 'TYPE': 'OFF', 'DC': 10},
-                71: {'LINK_GROUP': 6, 'TYPE': 'ON', 'DC': 12, 'SC': 3, 'QC': 3, 'QLENGTH': 100, 'RHOR': 90},
+                71: {'LINK_GROUP': 6, 'TYPE': 'ON', 'INPUT': 4, 'DC': 12, 'SC': 3, 'QC': 3, 'QLENGTH': 100, 'RHOR': 90},
                 67: {'LINK_GROUP': 8, 'TYPE': 'OFF', 'DC': 15},
-                64: {'LINK_GROUP': 10, 'TYPE': 'ON', 'DC': 18, 'SC': 4, 'QC': 4, 'QLENGTH': 100, 'RHOR': 90},
-                61: {'LINK_GROUP': 10, 'TYPE': 'ON', 'DC': 19, 'SC': 5, 'QC': 5, 'QLENGTH': 100, 'RHOR': 90},
+                64: {'LINK_GROUP': 10, 'TYPE': 'ON', 'INPUT': 5, 'DC': 18, 'SC': 4, 'QC': 4, 'QLENGTH': 100, 'RHOR': 90},
+                61: {'LINK_GROUP': 10, 'TYPE': 'ON', 'INPUT': 6, 'DC': 19, 'SC': 5, 'QC': 5, 'QLENGTH': 100, 'RHOR': 90},
                 56: {'LINK_GROUP': 13, 'TYPE': 'OFF', 'DC': 24},
-                54: {'LINK_GROUP': 13, 'TYPE': 'ON', 'DC': 23, 'SC': 6, 'QC': 6, 'QLENGTH': 100, 'RHOR': 90},
+                54: {'LINK_GROUP': 13, 'TYPE': 'ON', 'INPUT': 7, 'DC': 23, 'SC': 6, 'QC': 6, 'QLENGTH': 100, 'RHOR': 90},
                 53: {'LINK_GROUP': 13, 'TYPE': 'OFF', 'DC': 25},
-                49: {'LINK_GROUP': 14, 'TYPE': 'ON', 'DC': 27, 'SC': 7, 'QC': 7, 'QLENGTH': 100, 'RHOR': 90},
+                49: {'LINK_GROUP': 14, 'TYPE': 'ON', 'INPUT': 8, 'DC': 27, 'SC': 7, 'QC': 7, 'QLENGTH': 100, 'RHOR': 90},
                 326:{'LINK_GROUP': 15, 'TYPE': 'OFF', 'DC': 29},
-                336:{'LINK_GROUP': 17, 'TYPE': 'ON', 'DC': 32, 'SC': 8, 'QC': 8, 'QLENGTH': 100, 'RHOR': 90},
+                336:{'LINK_GROUP': 17, 'TYPE': 'ON', 'INPUT': 9, 'DC': 32, 'SC': 8, 'QC': 8, 'QLENGTH': 100, 'RHOR': 90},
                 312:{'LINK_GROUP': 17, 'TYPE': 'OFF', 'DC': 34},
                 #308:{'LINK_GROUP': 17, 'TYPE': 'ON', 'DC': 33},
                 305:{'LINK_GROUP': 17, 'TYPE': 'OFF', 'DC': 35},
@@ -279,9 +279,11 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
     vslOld = [vf] * Nsec
     rampFlow = {}
     rampQue = {}
+    rmRate = {}
     for key in ramps:
         rampFlow[key] = 0.0
         rampQue[key] = 0.0
+        rmRate[key] = 0.0
     
 
 
@@ -292,6 +294,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
     vslFileName = os.path.join(folderDir, "vslLog_%d.txt"%randomSeed)
     rampFlowFileName = os.path.join(folderDir, "rampFlowLog_%d.txt"%randomSeed)
     rampQueFileName = os.path.join(folderDir, "rampQueLog_%d.txt"%randomSeed)
+    rmRateFileName = os.path.join(folderDir, "rmRateLog_%d.txt"%randomSeed)
 
 
     '''write file headers'''
@@ -301,6 +304,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
     writeHeader(vslFileName, "VSL Command of Each Section", Nsec)
     writeRampHeader(rampFlowFileName, "Flow rate on each ramp", ramps.keys())
     writeRampHeader(rampQueFileName, "Queue Length on each ramp", ramps.keys())
+    writeRampHeader(rmRateFileName, "Ramp Metering Rate of each ramp", ramps.keys())
 
 
     
@@ -382,11 +386,15 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
         queueCounters = net.QueueCounters #VISSIM queue counter object
 
         # Construct the dictionary of ramp meters
-        ramps_obj = {}
-        for key in ramps:
+        meters_obj = {}
+        for key in ramps.keys():
             ramp = ramps[key]
             if ramp['TYPE'] == 'ON':
-                ramps_obj[key] = RM.RampMeter(ramp['LINK_GROUP'], dataCollections.GetDataCollectionByNumber(ramp['DC']), signalControllers.GetSignalControllerByNumber(ramp['SC']), queueCounters.GetQueueCounterByNumber(ramp['QC']), ramp['QLENGTH'], ramp['RHOR'])
+                meters_obj[key] = RM.RampMeter(ramp['LINK_GROUP'], vehInputs.GetVehicleInputByNumber(ramp['INPUT']) dataCollections.GetDataCollectionByNumber(ramp['DC']), signalControllers.GetSignalControllerByNumber(ramp['SC']), queueCounters.GetQueueCounterByNumber(ramp['QC']), ramp['QLENGTH'], ramp['RHOR'])
+                rmRate[key] = meters_obj[key].INPUT.AttValue('VOLUME')
+                meters_obj[key].update_rate(rmRate[key])
+
+
 
 
 
@@ -403,8 +411,8 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
             # run sigle step of simulation
             sim.RunSingleStep()
             currentTime = sim.AttValue('ELAPSEDTIME')
-            for key in ramps_obj:
-                ramps_obj[key].meter_step(stepTime_sec)
+            for key in meters_obj:
+                meters_obj[key].meter_step(stepTime_sec)
             #currentTime += stepTime_sec
             print currentTime
             if 0 == currentTime % Tdata_sec:
@@ -494,8 +502,8 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
             #Compute the VSL command
             if 0 == currentTime % Tctrl_sec:
-                for key in ramps_obj.keys():
-                    rampQue[key] = ramps_obj[key].QC.GetResult(currentTime, 'MEAN')
+                for key in meters_obj.keys():
+                    rampQue[key] = meters_obj[key].QC.GetResult(currentTime, 'MEAN')
 
                 rampQueFile = open(rampQueFileName, 'a')
                 rampQueFile.write(str(currentTime) + '\t')
@@ -503,6 +511,18 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
                     rampQueFile.write(str(rampQue[key]) + '\t')
                 rampQueFile.write('\n')
                 rampQueFile.close()
+
+                for key in meters_obj.keys():
+                    ramp = meters_obj[key]
+                    rmRate[key] = alineaQ(rmRate[key], density[ramp.LINK_GROUP])
+                    ramp.update_rate(rmRate[key])
+
+                rmRateFile = open(rmRateFileName, 'a')
+                rmRateFile.write(str(currentTime) + '\t')
+                for key in ramps.keys():
+                    rmRateFile.write(str(rmRate[key]) + '\t')
+                rmRateFile.write('\n')
+                rmRateFile.close()
 
                 
                 if (startTime_sec <= currentTime < endTime_sec):
