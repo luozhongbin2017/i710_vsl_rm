@@ -139,6 +139,15 @@ def LC_Control(scenario, links_obj, LC_distance = 2000):
         print LC_distance, 'ft of lane closed'
 
 
+def alineaQ(rmRate, density, q, demand, RHOR, QLENGTH):
+    alpha = 10 
+    beta = 10
+    rm_den = rmRate + alpha * (density - RHOR)
+    rm_Q = demand + beta * (q - QLENGTH)
+    return max(rm_den, rm_Q)
+    
+
+
 # def vsl_FeedbackLinearization(density, vsl, section_length):
 #     startSection = 9    #Section 1 in the paper
 #     end Section = 16    #Section N-1 in the paper
@@ -514,7 +523,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
                 for key in meters_obj.keys():
                     ramp = meters_obj[key]
-                    rmRate[key] = alineaQ(rmRate[key], density[ramp.LINK_GROUP])
+                    rmRate[key] = alineaQ(rmRate[key], density[ramp.LINK_GROUP], rampQue[key], meters_obj[key].INPUT.AttValue('VOLUME'), meters_obj[key].RHOR, meters_obj[key].QLENGTH)
                     ramp.update_rate(rmRate[key])
 
                 rmRateFile = open(rmRateFileName, 'a')
