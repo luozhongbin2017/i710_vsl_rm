@@ -51,22 +51,54 @@ def writeHeader(fileName, title, Nsec, firstColumnHeader = "t/s", columnHeader =
         example : Nsec = 2, columnHeader = "Sec"
         -> "Sec1\tSec2\t"
     '''
-    speedFile = open(fileName, 'w')
+    LogFile = open(fileName, 'w')
     # first line
-    speedFile.write(title)
-    speedFile.write('\n')
+    LogFile.write(title)
+    LogFile.write('\n')
     # column headers
     #   first column header
-    speedFile.write(firstColumnHeader)
-    speedFile.write('\t')
+    LogFile.write(firstColumnHeader)
+    LogFile.write('\t')
 
     columnHeaderTemplate = columnHeader+"%d\t"
     # each column
     for i in xrange(Nsec):
-        speedFile.write(columnHeaderTemplate % (i + 1))
-    speedFile.write('\n')
-    speedFile.close()
+        LogFile.write(columnHeaderTemplate % (i + 1))
+    LogFile.write('\n')
+    LogFile.close()
 
+def writeRampHeader(fileName, title, IDList, firstColumnHeader = "t/s", columnHeader = "Ramp"):
+    '''write header line of a data file
+    Parameters
+    ----------
+    fileName : string
+        file name
+    title : string
+        first line to be written
+    IDList : list[int]
+        List of ID of the ramps
+    firstColumnHeader : string
+        header of the first column
+    columnHeader : string
+        header of each column. Repeated Nsec times with headers
+        example : Nsec = 2, columnHeader = "Sec"
+        -> "Sec1\tSec2\t"
+    '''
+    LogFile = open(fileName, 'w')
+    # first line
+    LogFile.write(title)
+    LogFile.write('\n')
+    # column headers
+    #   first column header
+    LogFile.write(firstColumnHeader)
+    LogFile.write('\t')
+
+    columnHeaderTemplate = columnHeader+"%d\t"
+    # each column
+    for ID in IDList:
+        LogFile.write(columnHeaderTemplate % ID)
+    LogFile.write('\n')
+    LogFile.close()
 
 def LC_Control(scenario, links_obj, LC_distance = 2000):
     '''Apply Lane Change control for specific scenario
@@ -243,9 +275,14 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
     speed = [0.0] * Nsec
     density = [0.0] * Nsec
     flowSection = [0.0] * Nsec
-    rampFlow = [0.0] * Nramp
     vsl = [vf] * Nsec
     vslOld = [vf] * Nsec
+    rampFlow = {}
+    rampQue = {}
+    for key in ramps:
+        rampFlow[key] = 0.0
+        rampQue[key] = 0.0
+    
 
 
     '''Define log file names'''
@@ -262,8 +299,8 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
     writeHeader(densityFileName, "Density of Each Section", Nsec)
     writeHeader(flowSectionFileName, "Flow Rate of Each Section", Nsec)
     writeHeader(vslFileName, "VSL Command of Each Section", Nsec)
-    writeHeader(rampFlowFileName, "Flow rate on each ramp", Nramp, columnHeader = "Ramp")
-    writeHeader(rampQueFileName, "Queue Length on each ramp", Nramp, columnHeader = "Ramp")
+    writeRampHeader(rampFlowFileName, "Flow rate on each ramp", ramps.keys())
+    writeRampHeader(rampQueFileName, "Queue Length on each ramp", ramps.keys())
 
 
     
@@ -425,13 +462,11 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
                 # Get flow on each ramp
                 rampFlowFile = open(rampFlowFileName, 'a')
                 rampFlowFile.write(str(currentTime) + '\t')
-                i = 0
-                for key in ramps:
+                for key in ramps.keys():
                     dataCollection = dataCollections.GetDataCollectionByNumber(ramps[key]['DC'])
                     flow = dataCollection.GetResult('NVEHICLES', 'sum', 0) 
                     rampFlowFile.write(str(flow) + '\t')
-                    rampFlow[i] += flow
-                    i += 1
+                    rampFlow[key] += flow
                 rampFlowFile.write('\n'); rampFlowFile.close()
 
 
@@ -459,6 +494,17 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
             #Compute the VSL command
             if 0 == currentTime % Tctrl_sec:
+                for key in ramps_obj.keys():
+                    rampQue[key] = ramps_obj[key].QC.GetResult(currentTime, 'MEAN')
+
+                rampQueFile = open(rampQueFileName, 'a')
+                rampQueFile.write(str(currentTime) + '\t')
+                for key in ramps.keys():
+                    rampQueFile.write(str(rampQue[key]) + '\t')
+                rampQueFile.write('\n')
+                rampQueFile.close()
+
+                
                 if (startTime_sec <= currentTime < endTime_sec):
                     pass
                     #vsl = vsl_FeedbackLinearization()
