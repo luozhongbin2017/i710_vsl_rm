@@ -148,19 +148,55 @@ def alineaQ(rmRate, density, q, demand, RHOR, QLENGTH):
     
 
 
-# def vsl_FeedbackLinearization(density, vsl, section_length):
-#     startSection = 9    #Section 1 in the paper
-#     end Section = 16    #Section N-1 in the paper
+def vsl_FeedbackLinearization(density, vsl, section_length):
+    '''
+    density: (list[Nsec]) list of densities in all sections
+    vsl: (list[Nsec]) current VSL command in each sections
+    section_length: (list[Nsec]) length of each section
+    
+    '''
+    startSection = 9    #startSection: (int) the first section controlled with VSL
+    endSection = 15    #endSection: (int) the last section upstream the discharging section. All sections downstream of endSection are discharging sections
+    Nsec_controlled = endSection - startSection + 2 # Nsec_controlled is the number of sections under control, including the discharging section! The discharging section is considered as one single section
 
-#     car_class = 10
-#     truck_class = 20
+    car_class = 10
+    truck_class = 20
 
-#     ve = 65
-#     vslMIN = 10
-#     vslMAX = 65
+    ve = 65
+    vslMIN = 10
+    vslMAX = 65
 
-#     # Set desired equilibrium point
-#     wb = 40
+    # Set desired equilibrium point
+    wb = 40
+    rho_e = [120.0] * Nsec_controlled
+    rho_e[0] = 430.0
+    v_e = [ve] * (Nsec_controlled - 1)
+    v_e[0] = 15
+
+    # The length of 
+    rho = density[startSection:(endSection + 2)]
+    L = section_length[startSection:(endSection + 2)]
+
+    #compute the average density and total length in the discharging section
+    rho[-1] = 0.0
+    L[-1] = 0.0
+    for idx in range((endSection+1):len(density)):
+        rho[-1] += density[idx]
+        L[-1] += section_length[idx]
+    rho[-1] = rho[-1] / L[-1]
+
+    # make sure that the control command is not divided by zero
+    for idx in range(len(rho)):
+        rho[idx] = max(rho[i], 10)
+
+    e = [0.0] * Nsec_controlled
+
+    Lambda = [20] * (Nsec_controlled - 1)
+
+
+
+
+
 
 
 
