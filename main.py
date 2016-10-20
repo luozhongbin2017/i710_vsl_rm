@@ -148,7 +148,7 @@ def alineaQ(rmRate, density, q, demand, RHOR, QLENGTH):
     
 
 
-def vsl_FeedbackLinearization(density, vsl, section_length):
+def vsl_FeedbackLinearization(density, vsl, section_length, rmRate, rampFlow, link_groups):
     '''
     density: (list[Nsec]) list of densities in all sections
     vsl: (list[Nsec]) current VSL command in each sections
@@ -162,7 +162,7 @@ def vsl_FeedbackLinearization(density, vsl, section_length):
     car_class = 10
     truck_class = 20
 
-    ve = 65
+    ve = 40
     vslMIN = 10
     vslMAX = 65
 
@@ -180,18 +180,55 @@ def vsl_FeedbackLinearization(density, vsl, section_length):
     #compute the average density and total length in the discharging section
     rho[-1] = 0.0
     L[-1] = 0.0
-    for idx in range((endSection+1):len(density)):
+    for idx in range((endSection+1), len(density)):
         rho[-1] += density[idx]
         L[-1] += section_length[idx]
     rho[-1] = rho[-1] / L[-1]
 
     # make sure that the control command is not divided by zero
     for idx in range(len(rho)):
-        rho[idx] = max(rho[i], 10)
+        rho[idx] = max(rho[idx], 10)
 
+
+    # compute the on-ramp flow and off-ramp flow of each section
+    onFlow = [0.0] * Nsec_controlled
+    offFlow = [0.0] * Nsec_controlled
+    for iSec in range(Nsec_controlled):
+        for jRamp in link_groups[iSec + startSection]['ONRAMP']:
+            onFlow[iSec] += rmRate[jRamp]
+        for jRamp in link_groups[iSec + startSection]['OFFRAMP']:
+            offFlow[iSec] += rampFlow[jRamp]
+
+    # Get the error state
     e = [0.0] * Nsec_controlled
+    for i in range(len(e)):
+        e[i] = rho[i] - rho_e[i]
 
+    # Control parameter Lambda
     Lambda = [20] * (Nsec_controlled - 1)
+
+    # vsl command
+    v = [0.0] * (Nsec_controlled - 1)
+
+    for i in xrange(len(v) - 1):
+        v[i] = (-Lambda[i] * L[i] * e[i+1] + ve * rho_e[-1] - onFlow[(i+1):] + offFlow[(i+1):]) / rho[i]
+    if e[-1] <= 0:
+        v[-1] = (-Lambda[-1] * L[-1] * e[-1] + ve * rho[-1] - onFlow[-1] + offFlow[-1]) / rho[-1]
+    else:
+        v[-1] = (-Lambda[-1] * L[-1] * e[-1] + ve * rho_e[-1] - wb * e[-1]   - onFlow[-1] + offFlow[-1]) / rho[-1]
+
+    for i in xrange(Nsec_controlled - 1):
+        v[i] = round(v[i] * 0.2) * 5
+        if v[i] <= vsl[i]:
+            v[i] = max(v[i], vsl[i] - 10, vslMIN)
+        else:
+            v[i] = min(v[i], vslMAX)
+
+    return v
+
+
+
+    
 
 
 
@@ -419,7 +456,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
         for iSec in xrange(len(link_groups)):
             for linkID in link_groups[iSec]['MAINLINE']:
                 link = links.GetLinkByNumber(linkID)
-                section_length[iSec] += link.AttValue('LENGTH')
+                section_length[iSec] += link.AttValue('LENGTH') / 5280
 
 
 
@@ -435,7 +472,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
         for key in ramps.keys():
             ramp = ramps[key]
             if ramp['TYPE'] == 'ON':
-                meters_obj[key] = RM.RampMeter(ramp['LINK_GROUP'], vehInputs.GetVehicleInputByNumber(ramp['INPUT']) dataCollections.GetDataCollectionByNumber(ramp['DC']), signalControllers.GetSignalControllerByNumber(ramp['SC']), queueCounters.GetQueueCounterByNumber(ramp['QC']), ramp['QLENGTH'], ramp['RHOR'])
+                meters_obj[key] = RM.RampMeter(ramp['LINK_GROUP'], vehInputs.GetVehicleInputByNumber(ramp['INPUT']), dataCollections.GetDataCollectionByNumber(ramp['DC']), signalControllers.GetSignalControllerByNumber(ramp['SC']), queueCounters.GetQueueCounterByNumber(ramp['QC']), ramp['QLENGTH'], ramp['RHOR'])
                 rmRate[key] = meters_obj[key].INPUT.AttValue('VOLUME')
                 meters_obj[key].update_rate(rmRate[key])
 
@@ -571,8 +608,8 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
                 
                 if (startTime_sec <= currentTime < endTime_sec):
-                    pass
-                    #vsl = vsl_FeedbackLinearization()
+                    #pass
+                    vsl = vsl_FeedbackLinearization(density, vsl, section_length, rmRate, rampFlow, link_groups)
                 else:
                     for iVSL in xrange(Nsec):
                         vsl[iVSL] = vf
@@ -591,6 +628,9 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
                     vslFile.write(str(vsl[iVSL]) + '\t')
                 vslFile.write('\n')
                 vslFile.close()
+
+                for key in rampFlow:
+                    rampFlow[key] = 0.0
 
 
 
