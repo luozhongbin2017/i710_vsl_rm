@@ -211,7 +211,8 @@ def vsl_FeedbackLinearization(density, vsl, section_length, rmRate, rampFlow, li
     v = [0.0] * (Nsec_controlled - 1)
 
     for i in xrange(len(v) - 1):
-        v[i] = (-Lambda[i] * L[i] * e[i+1] + ve * rho_e[-1] - onFlow[(i+1):] + offFlow[(i+1):]) / rho[i]
+        v[i] = (-Lambda[i] * L[i] * e[i+1] + ve * rho_e[-1] - sum(onFlow[(i+1):]) + sum(offFlow[(i+1):])) / rho[i]
+        
     if e[-1] <= 0:
         v[-1] = (-Lambda[-1] * L[-1] * e[-1] + ve * rho[-1] - onFlow[-1] + offFlow[-1]) / rho[-1]
     else:
@@ -219,12 +220,13 @@ def vsl_FeedbackLinearization(density, vsl, section_length, rmRate, rampFlow, li
 
     for i in xrange(Nsec_controlled - 1):
         v[i] = round(v[i] * 0.2) * 5
-        if v[i] <= vsl[i]:
-            v[i] = max(v[i], vsl[i] - 10, vslMIN)
+        if v[i] <= vsl[i + startSection]:
+            v[i] = max(v[i], vsl[i + startSection] - 10, vslMIN)
         else:
             v[i] = min(v[i], vslMAX)
+        vsl[i+startSection] = v[i]
 
-    return v
+    return vsl
 
 
 
@@ -287,7 +289,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
                 {'MAINLINE': (57, 55, 51),  'ONRAMP': (54,),    'OFFRAMP': (56, 53), 'DC': 22, 'VSL': (51, 52, 53, 54, 77)},
                 {'MAINLINE': (50, 19, 18),  'ONRAMP': (49,),    'OFFRAMP': (),      'DC': 26, 'VSL': (55, 56, 57, 79)},
                 {'MAINLINE': (17, 339),     'ONRAMP': (),       'OFFRAMP': (326,),  'DC': 28, 'VSL': (58, 59, 60)},
-                {'MAINLINE': (338,),        'ONRRAMP': (),      'OFFRAMP': (),      'DC': 30, 'VSL': (61, 62, 63)},
+                {'MAINLINE': (338,),        'ONRAMP': (),      'OFFRAMP': (),      'DC': 30, 'VSL': (61, 62, 63)},
                 {'MAINLINE': (337, 310, 311, 309, 307, 306, 304), 
                                             'ONRAMP': (336, 308),'OFFRAMP': (312, 305), 'DC': 31, 'VSL': (65, 66, 67, 81)}
     ]
@@ -315,7 +317,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
 
     '''setting of scenarios'''
-    scenarios = [{'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, 'startTime_sec': 1500, 'endTime_sec': 2100},
+    scenarios = [{'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, 'startTime_sec': 600, 'endTime_sec': 1200},
                  {'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, 'startTime_sec': 1500, 'endTime_sec': 3300},
                  {'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, 'startTime_sec': 1500, 'endTime_sec': 4800}]
 

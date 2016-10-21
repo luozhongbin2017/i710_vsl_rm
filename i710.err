@@ -1,39 +1,57 @@
-﻿Simulation time 567: Vehicle 359 (on route 3 from
+﻿Simulation time 51: Vehicle 80 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
+Simulation time 531: Vehicle 347 (on route 3 from
   routing decision 1) reached the end of link 66
   while searching for the next link (10086) of the route.
-Simulation time 1047: Vehicle 1579 (on route 1 from
-  routing decision 1) reached the end of link 81
-  while searching for the next link (10100) of the route.
-Simulation time 1373: Vehicle 1397 (on route 3 from
-  routing decision 1) reached the end of link 66
-  while searching for the next link (10086) of the route.
-Simulation time 1643.6: Vehicle 1346 (on route 6 of
+Simulation time 585: Vehicle 1460 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
+Simulation time 646: Vehicle 1611 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
+Simulation time 719.2: Vehicle 975 (on route 4 of
+  routing decision 4) after 60.0 seconds of waiting for lane change
+  removed from link 339 at position 18.0.
+Simulation time 797.0: Vehicle 431 (on route 6 of
   routing decision 1) after 60.0 seconds of waiting for lane change
   removed from link 339 at position 18.0.
-Simulation time 1709.0: Vehicle 1463 (on route 6 of
+Simulation time 843: Vehicle 2118 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
+Simulation time 867.6: Vehicle 293 (on route 6 of
   routing decision 1) after 60.0 seconds of waiting for lane change
   removed from link 339 at position 18.0.
-Simulation time 1783: Vehicle 1855 (on route 3 from
-  routing decision 1) reached the end of link 66
-  while searching for the next link (10086) of the route.
-Simulation time 1785.2: Vehicle 1461 (on route 6 of
+Simulation time 943.6: Vehicle 417 (on route 6 of
   routing decision 1) after 60.0 seconds of waiting for lane change
   removed from link 339 at position 18.0.
-Simulation time 1800: Vehicle 1800 (on route 3 from
-  routing decision 1) reached the end of link 66
-  while searching for the next link (10086) of the route.
-Simulation time 1852.8: Vehicle 1666 (on route 6 of
+Simulation time 1006: Vehicle 2581 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
+Simulation time 1014.6: Vehicle 982 (on route 4 of
+  routing decision 4) after 60.0 seconds of waiting for lane change
+  removed from link 339 at position 18.0.
+Simulation time 1110.4: Vehicle 519 (on route 6 of
   routing decision 1) after 60.0 seconds of waiting for lane change
   removed from link 339 at position 18.0.
-Simulation time 1919.4: Vehicle 1638 (on route 6 of
-  routing decision 1) after 60.0 seconds of waiting for lane change
+Simulation time 1179.6: Vehicle 1079 (on route 4 of
+  routing decision 4) after 60.0 seconds of waiting for lane change
   removed from link 339 at position 18.0.
-Simulation time 1962: Vehicle 2069 (on route 3 from
-  routing decision 1) reached the end of link 66
-  while searching for the next link (10086) of the route.
-Simulation time 1992.4: Vehicle 1649 (on route 6 of
-  routing decision 1) after 60.0 seconds of waiting for lane change
-  removed from link 339 at position 18.0.
-Simulation time 2057.0: Vehicle 1636 (on route 6 of
-  routing decision 1) after 60.0 seconds of waiting for lane change
-  removed from link 339 at position 18.0.
+Simulation time 1262: Vehicle 3271 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
+Simulation time 1295: Vehicle 3359 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
+Simulation time 1379: Vehicle 3570 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
+Simulation time 1488: Vehicle 3862 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
+Simulation time 1510: Vehicle 3909 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
+Simulation time 1727: Vehicle 4456 (on route 3 from
+  routing decision 9) reached the end of link 335
+  while searching for the next link (10336) of the route.
