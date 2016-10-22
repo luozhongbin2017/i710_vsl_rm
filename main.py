@@ -476,7 +476,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
             ramp = ramps[key]
             if ramp['TYPE'] == 'ON':
                 meters_obj[key] = RM.RampMeter(ramp['LINK_GROUP'], vehInputs.GetVehicleInputByNumber(ramp['INPUT']), dataCollections.GetDataCollectionByNumber(ramp['DC']), signalControllers.GetSignalControllerByNumber(ramp['SC']), queueCounters.GetQueueCounterByNumber(ramp['QC']), ramp['QLENGTH'], ramp['RHOR'])
-                rmRate[key] = meters_obj[key].INPUT.AttValue('VOLUME')
+                rmRate[key] = max(meters_obj[key].INPUT.AttValue('VOLUME'), 100)
                 meters_obj[key].update_rate(rmRate[key])
 
 
