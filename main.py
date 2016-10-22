@@ -140,13 +140,13 @@ def LC_Control(scenario, links_obj, LC_distance = 2000):
 
 
 def alineaQ(rmRate, density, q, demand, RHOR, QLENGTH):
-    alpha = 10 
-    beta = 10
-    rm_den = rmRate + alpha * (density - RHOR)
+    rmMIN = 100
+    rmMAX = 1200
+    alpha = 1
+    beta = 1
+    rm_den = rmRate - alpha * (density - RHOR)
     rm_Q = demand + beta * (q - QLENGTH)
-    return max(rm_den, rm_Q)
-    
-
+    return max(rmMIN, min(rmMAX, max(rm_den, rm_Q)))
 
 def vsl_FeedbackLinearization(density, vsl, section_length, rmRate, rampFlow, link_groups):
     '''
@@ -155,6 +155,7 @@ def vsl_FeedbackLinearization(density, vsl, section_length, rmRate, rampFlow, li
     section_length: (list[Nsec]) length of each section
     
     '''
+    rampDemmand = {64: 200, 61:500, 54:200, 49:300} # use to estimate the on-ramp flow
     startSection = 9    #startSection: (int) the first section controlled with VSL
     endSection = 15    #endSection: (int) the last section upstream the discharging section. All sections downstream of endSection are discharging sections
     Nsec_controlled = endSection - startSection + 2 # Nsec_controlled is the number of sections under control, including the discharging section! The discharging section is considered as one single section
@@ -195,7 +196,7 @@ def vsl_FeedbackLinearization(density, vsl, section_length, rmRate, rampFlow, li
     offFlow = [0.0] * Nsec_controlled
     for iSec in range(Nsec_controlled):
         for jRamp in link_groups[iSec + startSection]['ONRAMP']:
-            onFlow[iSec] += rmRate[jRamp]
+            onFlow[iSec] += min(rmRate[jRamp], rampDemmand[jRamp])
         for jRamp in link_groups[iSec + startSection]['OFFRAMP']:
             offFlow[iSec] += rampFlow[jRamp]
 
