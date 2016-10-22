@@ -324,7 +324,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
     ''' Demand settings'''
     #demands = [4500, 280, 180, 400, 650, 10, 50, 180, 100, 50, 90, 280, 550] # daily average vehicle demands
-    demands = [4500, 280, 180, 400, 650, 10, 50, 180, 100, 50]
+    demands = [4500, 0, 0, 0,200, 500, 200, 300, 0, 0]
     #demands = [4500, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for i in xrange(len(demands)):
         demands[i] *= demandRatio
