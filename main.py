@@ -693,11 +693,11 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
 def main():
     scenario = 0
-    nMonteCarlo = 3
+    nMonteCarlo = 1
     inc = [0]
     ctrl = [(0, 2)]
 
-    demandRatio = 1.5
+    demandRatio = 1.0
     simulationTime_sec = 4800
     randomSeeds = calcRandomSeeds(nMonteCarlo)
 
