@@ -182,7 +182,7 @@ def vsl_FeedbackLinearization(density, vsl, section_length, rmRate, rampFlow, li
     rho[-1] = 0.0
     L[-1] = 0.0
     for idx in range((endSection+1), len(density)):
-        rho[-1] += density[idx]
+        rho[-1] += density[idx] * section_length[idx]
         L[-1] += section_length[idx]
     rho[-1] = rho[-1] / L[-1]
 
@@ -695,7 +695,7 @@ def main():
     scenario = 0
     nMonteCarlo = 3
     inc = [0]
-    ctrl = [(0, 3)]
+    ctrl = [(0, 2)]
 
     demandRatio = 1.5
     simulationTime_sec = 4800
