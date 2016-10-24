@@ -721,7 +721,7 @@ def main():
                 runSimulation(simulationTime_sec, iInc, jController, kLaneClosure, lMC, folderDir, networkDir, demandRatio, demandComposition)
                 shutil.copyfile(os.path.join(networkDir, "I710.fzp"), os.path.join(folderDir, "I710_%d.fzp"%lMC))
                 fzpPath = os.path.join(folderDir, "I710_%d.fzp"%lMC)
-                throughput, aTravelTime, VMT, aStops, aLC, aHC, aCO, aNOx, aCO2, aEnergy, aPM25 = fzpEvaluation(fzpPath, evalTimeRange[iInc][0], evalTimeRange[iInc][1])
+                throughput, aTravelTime, VMT, aStops, aLC, aHC, aCO, aNOx, aCO2, aEnergy, aPM25 = fzp.fzpEvaluation(fzpPath, evalTimeRange[iInc][0], evalTimeRange[iInc][1])
                 resultFile.write(str([throughput, aTravelTime, VMT, aStops, aLC, aHC, aCO, aNOx, aCO2, aEnergy, aPM25]) + '\n')
                 average.append([throughput, aTravelTime, VMT, aStops, aLC, aHC, aCO, aNOx, aCO2, aEnergy, aPM25])
             average = np.array(average).mean(axis = 0)
