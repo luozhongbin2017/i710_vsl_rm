@@ -501,7 +501,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
             for key in meters_obj:
                 meters_obj[key].meter_step(stepTime_sec)
             #currentTime += stepTime_sec
-            print currentTime
+            #print currentTime
             if 0 == currentTime % Tdata_sec:
                 # Get density, flow, speed of each section
                 for iSection in xrange(Nsec):

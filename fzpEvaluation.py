@@ -174,7 +174,7 @@ def fzpEvaluation(fzpPath, startTime, stopTime):
             continue
 
         throughput += 1
-        print throughput
+        #print throughput
         travelTime += (veh.iloc[-1]['t'] - veh.iloc[0]['t']) / 60
         nStop += veh.iloc[-1]['Stops']
         #lc = veh[veh.LCh != '-']
