@@ -241,13 +241,13 @@ def fzpEvaluation(fzpPath, startTime, stopTime):
 
 
 def eval_main():
-    inc = [60]
+    inc = [1]
     ctrl = [(0, 0), (1, 2)]
     MC = [3*i+1 for i in range(5)]
     # inc = [10]
     # ctrl = [(1, 2)]
     # MC = [1, 4]
-    incTime = {10: (1200, 2400), 30: (1200, 3600), 60: (1500, 3900)}
+    incTime = [(1200, 2400), (1200, 3600), (1500, 3900)]
     for i in inc:
         startTime, stopTime = incTime[i]
         for j in ctrl:

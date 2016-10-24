@@ -11,6 +11,7 @@ import win32api
 import win32com.client as com
 import shutil
 import RampMeter as RM
+import fzpEvaluation as fzp
 #import win_interface
 
 def getProgramName():
@@ -318,7 +319,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
 
     '''setting of scenarios'''
-    scenarios = [{'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, 'startTime_sec': 600, 'endTime_sec': 1200},
+    scenarios = [{'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, 'startTime_sec': 1500, 'endTime_sec': 2100},
                  {'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, 'startTime_sec': 1500, 'endTime_sec': 3300},
                  {'group': 17, 'link': 306, 'lane': 2, 'coordinate': 5, 'startTime_sec': 1500, 'endTime_sec': 4800}]
 
@@ -610,7 +611,7 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
                 rmRateFile.close()
 
                 
-                if (startTime_sec <= currentTime < endTime_sec):
+                if (startTime_sec <= currentTime < endTime_sec) and idxController == 1:
                     #pass
                     vsl = vsl_FeedbackLinearization(density, vsl, section_length, rmRate, rampFlow, link_groups)
                 else:
@@ -693,12 +694,12 @@ def runSimulation(simulationTime_sec, idxScenario, idxController, idxLaneClosure
 
 def main():
     scenario = 0
-    nMonteCarlo = 1
-    inc = [0]
-    ctrl = [(0, 2)]
+    nMonteCarlo = 3
+    inc = [1]
+    ctrl = [(0, 0.1), (1, 2)]
 
     demandRatio = 1.0
-    simulationTime_sec = 4800
+    simulationTime_sec = 4000
     randomSeeds = calcRandomSeeds(nMonteCarlo)
 
     # Vehicle Composition ID
@@ -708,13 +709,28 @@ def main():
 
     networkDir = os.path.abspath(os.curdir)
 
+    evalTimeRange = [(1200, 2400), (1200, 3600), (1500, 3900)]
+
     for iInc in inc:
         for jController, kLaneClosure in ctrl:
             folderDir = os.path.join(networkDir, 'data', 'scenario%d' %iInc, 'ctrl%d' %jController, 'LC%d' %kLaneClosure)
             mkdir(folderDir)
+            resultFile = open(os.path.join(folderDir, "result.txt"), 'w')
+            average = []
             for lMC in randomSeeds:
                 runSimulation(simulationTime_sec, iInc, jController, kLaneClosure, lMC, folderDir, networkDir, demandRatio, demandComposition)
-                shutil.copyfile(os.path.join(networkDir, "I710.fzp"), os.path.join(folderDir, "I710_%d"%lMC))
+                shutil.copyfile(os.path.join(networkDir, "I710.fzp"), os.path.join(folderDir, "I710_%d.fzp"%lMC))
+                fzpPath = os.path.join(folderDir, "I710_%d.fzp"%lMC)
+                throughput, aTravelTime, VMT, aStops, aLC, aHC, aCO, aNOx, aCO2, aEnergy, aPM25 = fzpEvaluation(fzpPath, evalTimeRange[iInc][0], evalTimeRange[iInc][1])
+                resultFile.write(str([throughput, aTravelTime, VMT, aStops, aLC, aHC, aCO, aNOx, aCO2, aEnergy, aPM25]) + '\n')
+                average.append([throughput, aTravelTime, VMT, aStops, aLC, aHC, aCO, aNOx, aCO2, aEnergy, aPM25])
+            average = np.array(average).mean(axis = 0)
+            resultFile.write(str(average) + '\n')
+            resultFile.close()
+
+
+
+
 
 
 
