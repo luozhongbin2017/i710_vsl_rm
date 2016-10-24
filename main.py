@@ -12,6 +12,7 @@ import win32com.client as com
 import shutil
 import RampMeter as RM
 import fzpEvaluation as fzp
+import numpy as np
 #import win_interface
 
 def getProgramName():
